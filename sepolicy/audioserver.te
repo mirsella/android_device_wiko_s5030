@@ -1,0 +1,3 @@
+# Audio HAL reads the boot mode sysfs attribute.
+allow audioserver sysfs_boot_mode:file r_file_perms;
+allow audioserver sysfs:file r_file_perms;

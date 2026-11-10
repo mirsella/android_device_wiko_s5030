@@ -1,6 +1,11 @@
 on init
     #Create nvdata mount point
     mkdir /nvdata 0771 system system
+
+on post-fs
+    # Label nvdata before mtk_wmtd reads Wi-Fi calibration.
+    restorecon_recursive /nvdata
+
 on post-fs-data
     # create basic filesystem structure
     # mkdir /data/nvram 2770 root system

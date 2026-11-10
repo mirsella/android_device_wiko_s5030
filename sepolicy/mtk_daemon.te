@@ -1,0 +1,62 @@
+# Proprietary MTK userspace daemons (NVRAM, AGPS, GPS, modem launcher,
+# thermal).  They are legacy blobs with no seclabel, so keep them in one
+# isolated domain.  This domain is enforcing; the rules below cover only
+# their known device, sysfs, property and socket needs.
+type mtk_daemon, domain;
+type mtk_daemon_exec, exec_type, file_type;
+type nvram_agent_service, service_manager_type;
+
+init_daemon_domain(mtk_daemon)
+
+# NvRAMAgent registers itself with servicemanager. binder_use also grants
+# servicemanager the /proc/<pid> access it needs for the registration check.
+binder_use(mtk_daemon)
+
+allow mtk_daemon nvram_agent_service:service_manager add;
+
+# zram setup script and vendor netlink/socket users.
+allow mtk_daemon rootfs:file { read open getattr execute execute_no_trans };
+allow mtk_daemon rootfs:dir r_dir_perms;
+allow mtk_daemon ram_device:blk_file rw_file_perms;
+allow mtk_daemon sysfs_zram:dir search;
+allow mtk_daemon sysfs_zram:file rw_file_perms;
+allow mtk_daemon shell_exec:file { read open getattr execute execute_no_trans entrypoint };
+allow mtk_daemon toolbox_exec:file { read open getattr execute execute_no_trans };
+allow mtk_daemon self:netlink_socket { create bind connect read write setopt getattr };
+allow mtk_daemon self:netlink_route_socket { create bind connect read write setopt getattr };
+allow mtk_daemon self:tcp_socket { create bind connect read write setopt getattr };
+allow mtk_daemon self:udp_socket { create bind connect read write setopt getattr };
+allow mtk_daemon system_data_file:sock_file { create unlink write setattr };
+
+# Legacy daemons load their own system libraries and read /proc/sysfs.
+allow mtk_daemon system_file:file r_file_perms;
+allow mtk_daemon system_file:dir r_dir_perms;
+allow mtk_daemon system_data_file:file r_file_perms;
+allow mtk_daemon mtk_bt_addr_file:file { rw_file_perms setattr };
+allow mtk_daemon mtk_thermal_settings_file:file { rw_file_perms setattr };
+allow mtk_daemon self:capability { chown fowner fsetid };
+allow mtk_daemon sysfs_boot_mode:file r_file_perms;
+allow mtk_daemon sensors_device:chr_file r_file_perms;
+allow mtk_daemon mtk_adc_device:chr_file rw_file_perms;
+allow mtk_daemon proc:file { rw_file_perms setattr };
+allow mtk_daemon proc:dir r_dir_perms;
+allow mtk_daemon proc_net:file r_file_perms;
+allow mtk_daemon self:capability { dac_override sys_admin };
+allow mtk_daemon system_data_file:dir rw_dir_perms;
+allow mtk_daemon sysfs:file rw_file_perms;
+allow mtk_daemon sysfs:dir r_dir_perms;
+allow mtk_daemon sysfs_thermal:file r_file_perms;
+allow mtk_daemon sysfs_thermal:dir search;
+
+# MTK connectivity and GPS character devices, and NVRAM storage.
+allow mtk_daemon mtk_wmt_device:chr_file rw_file_perms;
+allow mtk_daemon mtk_wmtdetect_device:chr_file rw_file_perms;
+allow mtk_daemon mtk_gps_device:chr_file rw_file_perms;
+allow mtk_daemon nvram_block_device:blk_file rw_file_perms;
+allow mtk_daemon nvdata_file:dir rw_dir_perms;
+allow mtk_daemon nvdata_file:file rw_file_perms;
+
+# Daemons publish properties and talk to init/property_service.
+allow mtk_daemon property_socket:sock_file write;
+allow mtk_daemon system_prop:property_service set;
+allow mtk_daemon init:unix_stream_socket connectto;

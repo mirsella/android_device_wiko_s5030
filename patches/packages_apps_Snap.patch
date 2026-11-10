@@ -1,0 +1,45 @@
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 9c84bb6..e88fc74 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -520,6 +520,7 @@
+ 
+     <!-- Announcement telling users video recording has just started [CHAR LIMIT=NONE] -->
+     <string name="video_recording_started">Video recording has started.</string>
++    <string name="video_recording_unsupported">Video recording is not supported on this build.</string>
+     <!-- Announcement telling users video recording has just stopped [CHAR LIMIT=NONE] -->
+     <string name="video_recording_stopped">Video recording has stopped.</string>
+ 
+diff --git a/src/com/android/camera/VideoModule.java b/src/com/android/camera/VideoModule.java
+index a8e990d..88a85a4 100644
+--- a/src/com/android/camera/VideoModule.java
++++ b/src/com/android/camera/VideoModule.java
+@@ -119,6 +119,11 @@ public class VideoModule extends BaseModule<VideoUI> implements
+ 
+     private static final long SHUTTER_BUTTON_TIMEOUT = 0L; // 0ms
+ 
++    // The 5.1 MTK camera HAL crashes mediaserver when a video stream is
++    // configured on this 7.1 build. Keep video mode safe until the HAL
++    // parameter/MDP incompatibility is fixed.
++    private static final boolean VIDEO_RECORDING_SUPPORTED = false;
++
+     public static final boolean HAS_RESUME_SUPPORTED =
+             Build.VERSION.SDK_INT > Build.VERSION_CODES.M;
+ 
+@@ -887,8 +892,14 @@ public class VideoModule extends BaseModule<VideoUI> implements
+ 
+     @Override
+     public void onShutterButtonClick() {
+-        if (mPaused || mUI.collapseCameraControls() ||
+-                mSwitchingCamera) return;
++        boolean collapse = mUI.collapseCameraControls();
++        if (mPaused || collapse || mSwitchingCamera) return;
++
++        if (!VIDEO_RECORDING_SUPPORTED) {
++            Toast.makeText(mActivity, R.string.video_recording_unsupported,
++                    Toast.LENGTH_SHORT).show();
++            return;
++        }
+ 
+         boolean stop = mMediaRecorderRecording;
+ 

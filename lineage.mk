@@ -23,7 +23,50 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/product_launched_with_l_mr1.mk
 $(call inherit-product, device/wiko/s5030/device.mk)
 
 ## LineageOS
-$(call inherit-product, vendor/cm/config/common_full_phone.mk)
+$(call inherit-product, vendor/cm/config/common_mini_phone.mk)
+
+## Trim the package list for a 1 GB / MT6580 device.  Keep one app per job:
+## Trebuchet (launcher), Jelly (browser), Snap (camera), Gallery2 (photos),
+## Eleven (music), ExactCalculator, and the telephony stack.
+PRODUCT_PACKAGES := $(filter-out \
+    AudioFX \
+    Camera2 \
+    EasterEgg \
+    Exchange2 \
+    LiveWallpapersPicker \
+    LockClock \
+    Music \
+    MusicFX \
+    PhotoTable \
+    Recorder \
+    Terminal \
+    Updater \
+    WeatherManagerService \
+    WeatherProvider \
+    7z \
+    bzip2 \
+    fsck.ntfs \
+    gdbserver \
+    htop \
+    lib7z \
+    micro_bench \
+    mkfs.ntfs \
+    mount.ntfs \
+    oprofiled \
+    pigz \
+    powertop \
+    rsync \
+    scp \
+    sftp \
+    ssh \
+    sshd \
+    sshd_config \
+    ssh-keygen \
+    start-ssh \
+    strace \
+    unrar \
+    vim \
+    ,$(PRODUCT_PACKAGES))
 
 # Device identifier
 PRODUCT_NAME := lineage_s5030

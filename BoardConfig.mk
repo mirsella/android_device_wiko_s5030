@@ -53,7 +53,7 @@ TARGET_SPECIFIC_HEADER_PATH := $(DEVICE_PATH)/include
 
 # Kernel
 BOARD_KERNEL_BASE := 0x80000000
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32S1,32S1 androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32S1,32S1 androidboot.selinux=enforcing
 BOARD_KERNEL_IMAGE_NAME := zImage-dtb
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x04000000 --second_offset 0x00f00000 --tags_offset 0x0e000000
@@ -89,6 +89,7 @@ BOARD_PROVIDES_LIBRIL := true
 BOARD_RIL_CLASS := ../../../$(DEVICE_PATH)/ril
 
 # SELinux
+BOARD_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy
 BOARD_SECCOMP_POLICY := $(DEVICE_PATH)/seccomp
 
 include device/mediatek/sepolicy/sepolicy.mk
@@ -130,3 +131,8 @@ WIFI_DRIVER_FW_PATH_STA := STA
 WIFI_DRIVER_FW_PATH_P2P := P2P
 WIFI_DRIVER_FW_PATH_PARAM := /dev/wmtWifi
 WPA_SUPPLICANT_VERSION := VER_0_8_X
+
+# Preoptimize system apps on the build host; this device is too slow to dex2oat everything on first boot.
+WITH_DEXPREOPT := true
+WITH_DEXPREOPT_PIC := true
+WITH_DEXPREOPT_DEBUG_INFO := false

@@ -18,7 +18,7 @@
 DEVICE_PATH := device/wiko/s5030
 
 ## Inherit Dalvik Heap
-$(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
+$(call inherit-product, $(DEVICE_PATH)/dalvik-heap.mk)
 
 ## Vendor Blobs
 $(call inherit-product, vendor/wiko/s5030/s5030-vendor.mk)
@@ -70,9 +70,22 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     lights.mt6580
 
+# Media
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/media_profiles.xml:system/etc/media_profiles.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml
+
 # Misc
+PRODUCT_COPY_FILES += \
+    vendor/wiko/s5030/proprietary/lib/libstlport.so:system/lib/libstlport.so
+
+# WebView
 PRODUCT_PACKAGES += \
-    libstlport
+    webview \
+    libwebviewchromium_loader \
+    libwebviewchromium_plat_support
 
 # Overlay
 DEVICE_PACKAGE_OVERLAYS := $(DEVICE_PATH)/overlay

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="github" fetch="https://github.com/" />
+
+  <project name="mirsella/android_device_wiko_s5030"
+           path="device/wiko/s5030"
+           remote="github"
+           revision="lineage-14.1" />
+
+  <project name="A2L5-UL/android_kernel_wiko_s5030"
+           path="kernel/wiko/s5030"
+           remote="github"
+           revision="3de7764af7b78ab1b6d7c12b2e2fe4d26531d971" />
+</manifest>

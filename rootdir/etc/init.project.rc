@@ -53,6 +53,7 @@ on post-fs-data
     mknod /dev/wmtWifi c 153 0
     chmod 0660 /dev/wmtWifi
     chown system system /dev/wmtWifi
+    restorecon /dev/wmtWifi
 
 #Camera
     chmod 0660 /dev/GAF001AF
@@ -150,6 +151,7 @@ service audio-daemon /system/bin/audiocmdservice_atci
     oneshot
 
 service wmtLoader /system/bin/wmt_loader
+    seclabel u:r:mtk_daemon:s0
     user root
    group root
    class core
@@ -157,6 +159,7 @@ service wmtLoader /system/bin/wmt_loader
 
 
 service conn_launcher /system/bin/6620_launcher -p /system/etc/firmware/
+    seclabel u:r:mtk_daemon:s0
     user system
    group system
     class core

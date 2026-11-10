@@ -1,0 +1,4 @@
+# MediaTek STP Bluetooth transport.
+allow bluetooth mtk_bt_device:chr_file rw_file_perms;
+allow bluetooth sysfs_boot_mode:file r_file_perms;
+allow bluetooth mtk_bt_addr_file:file r_file_perms;

@@ -1,0 +1,9 @@
+# Filesystem types for s5030.
+
+# /nvdata is mounted from mmcblk0p13 and read by the mtk_wmtd kernel thread.
+type nvdata_file, file_type, data_file_type;
+
+# sysfs driver attributes used by the camera/audio HALs.
+# debugfs/sysfs do not support xattrs, so these are set via genfscon.
+type sysfs_mem_bw, fs_type, sysfs_type;
+type sysfs_boot_mode, fs_type, sysfs_type;

@@ -1,0 +1,69 @@
+# GPU / display
+/dev/mali                       u:object_r:gpu_device:s0
+/dev/mtk_disp_mgr               u:object_r:mtk_disp_mgr_device:s0
+
+# Camera (legacy HAL1 runs in mediaserver)
+/dev/camera-isp                 u:object_r:camera_device:s0
+/dev/camera-pipemgr             u:object_r:camera_device:s0
+/dev/camera-sysram              u:object_r:camera_device:s0
+/dev/camera-fdvt                u:object_r:camera_device:s0
+/dev/kd_camera_hw               u:object_r:camera_device:s0
+/dev/kd_camera_hw_bus2          u:object_r:camera_device:s0
+/dev/kd_camera_flashlight       u:object_r:camera_device:s0
+
+# Sensors
+/dev/hwmsensor                  u:object_r:sensors_device:s0
+
+# Modem/audio PCM
+/dev/ccci_pcm_rx                u:object_r:audio_device:s0
+/dev/ccci_pcm_tx                u:object_r:audio_device:s0
+/dev/ccci_aud                   u:object_r:audio_device:s0
+/dev/ccci2_aud                  u:object_r:audio_device:s0
+/dev/eemcs_aud                  u:object_r:audio_device:s0
+
+# Wi-Fi / Bluetooth
+/dev/wmtWifi                    u:object_r:wmt_wifi_device:s0
+/dev/stpbt                      u:object_r:mtk_bt_device:s0
+/dev/stpwmt                     u:object_r:mtk_wmt_device:s0
+/dev/wmtdetect                  u:object_r:mtk_wmtdetect_device:s0
+/dev/stpgps                     u:object_r:mtk_gps_device:s0
+/dev/ttyC2                      u:object_r:mtk_gps_device:s0
+/dev/gsensor                    u:object_r:sensors_device:s0
+/dev/als_ps                     u:object_r:sensors_device:s0
+/dev/mtk-adc-cali               u:object_r:mtk_adc_device:s0
+/dev/block/mmcblk0p1            u:object_r:nvram_block_device:s0
+/dev/block/platform/mtk-msdc.0/11120000.MSDC0/by-name/proinfo u:object_r:nvram_block_device:s0
+/data/BT_Addr                    u:object_r:mtk_bt_addr_file:s0
+/data/.tp.settings              u:object_r:mtk_thermal_settings_file:s0
+
+# FRP / NVRAM block devices
+/dev/block/mmcblk0p12           u:object_r:frp_block_device:s0
+/dev/block/platform/mtk-msdc.0/11120000.MSDC0/by-name/frp u:object_r:frp_block_device:s0
+/dev/block/mmcblk0p2            u:object_r:nvram_block_device:s0
+/dev/block/platform/mtk-msdc.0/11120000.MSDC0/by-name/nvram u:object_r:nvram_block_device:s0
+
+# NVRAM data
+/nvdata(/.*)?                   u:object_r:nvdata_file:s0
+/dev/MTK_SMI u:object_r:mtk_smi_device:s0
+/dev/devmap u:object_r:devmap_device:s0
+
+# Legacy MTK userspace daemons
+/system/bin/6620_launcher       u:object_r:mtk_daemon_exec:s0
+/system/bin/wmt_loader          u:object_r:mtk_daemon_exec:s0
+/system/bin/nvram_daemon        u:object_r:mtk_daemon_exec:s0
+/system/bin/nvram_agent_binder  u:object_r:mtk_daemon_exec:s0
+/system/bin/wifi2agps           u:object_r:mtk_daemon_exec:s0
+/system/bin/mtk_agpsd           u:object_r:mtk_daemon_exec:s0
+/system/bin/thermald            u:object_r:mtk_daemon_exec:s0
+/system/bin/thermal             u:object_r:mtk_daemon_exec:s0
+/system/bin/thermal_manager     u:object_r:mtk_daemon_exec:s0
+/system/xbin/mnld               u:object_r:mtk_daemon_exec:s0
+
+
+/dev/btif                      u:object_r:mtk_bt_device:s0
+
+/dev/sw_sync                   u:object_r:sw_sync_device:s0
+
+# Mali/GPU sysfs nodes read by libMali and app render threads
+/sys/module/mt_idle/parameters/is_dpidle u:object_r:sysfs_is_dpidle:s0
+/sys/bus/platform/drivers/dev_info/dev_info u:object_r:sysfs_dev_info:s0

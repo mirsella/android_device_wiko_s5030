@@ -1,0 +1,2 @@
+# wpa_supplicant may use the MTK WLAN control node directly.
+allow wpa wmt_wifi_device:chr_file rw_file_perms;

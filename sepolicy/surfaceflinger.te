@@ -1,0 +1,5 @@
+# MTK display manager ioctl interface (HWC).
+allow surfaceflinger mtk_disp_mgr_device:chr_file rw_file_perms;
+allow surfaceflinger mtk_smi_device:chr_file rw_file_perms;
+allow surfaceflinger sw_sync_device:chr_file rw_file_perms;
+allow surfaceflinger sysfs_boot_mode:file r_file_perms;

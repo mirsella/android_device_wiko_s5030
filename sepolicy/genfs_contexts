@@ -1,0 +1,9 @@
+# sysfs driver attributes.
+genfscon sysfs /bus/platform/drivers/mem_bw_ctrl/concurrency_scenario u:object_r:sysfs_mem_bw:s0
+genfscon sysfs /devices/virtual/BOOT/BOOT/boot/boot_mode u:object_r:sysfs_boot_mode:s0
+
+# debugfs does not support xattrs, so init's restorecon_recursive
+# /sys/kernel/debug cannot label trace_marker.  Use genfscon instead;
+# the existing `allow domain debugfs_trace_marker:file w_file_perms;`
+# then covers zygote, mediaserver, audioserver and shell.
+genfscon debugfs /tracing/trace_marker u:object_r:debugfs_trace_marker:s0

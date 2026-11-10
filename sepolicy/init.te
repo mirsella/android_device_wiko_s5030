@@ -1,0 +1,30 @@
+# Vendor daemons on this tree have no seclabel and therefore run in the
+# init domain (mtkbt, nvram_daemon, mtk_agpsd, wifi2agps, mnld, thermal,
+# thermald, 6620_launcher, ...).  Preserve their access to the device nodes
+# that are relabeled away from the generic `device` type.
+
+allow init {
+    gpu_device
+    mtk_disp_mgr_device
+    camera_device
+    sensors_device
+    audio_device
+    wmt_wifi_device
+    mtk_bt_device
+}:chr_file rw_file_perms;
+
+allow init nvram_block_device:blk_file rw_file_perms;
+
+# mtkbt / wifi2agps read netlink events.
+allow init self:netlink_socket read;
+
+# 6620_launcher and wifi2agps write cp2_mgr / wifi_2_agps in /data.
+allow init system_data_file:sock_file write;
+
+# /dev/wmtWifi is created by init.project.rc with mknod, so it starts as
+# `device`; restorecon then changes it to wmt_wifi_device.
+allow init device:chr_file relabelfrom;
+allow init wmt_wifi_device:chr_file relabelto;
+allow init socket_device:sock_file create;
+
+allow init socket_device:sock_file { unlink setattr };

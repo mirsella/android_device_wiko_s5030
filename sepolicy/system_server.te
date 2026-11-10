@@ -1,0 +1,6 @@
+# IonWatcher reads /sys/kernel/debug/ion/clients.
+allow system_server debugfs:dir r_dir_perms;
+
+# GPS HAL sends to mnld's /data/gps_mnl/hal2mnld dgram socket.
+allow system_server init:unix_dgram_socket sendto;
+allow system_server mtk_daemon:unix_dgram_socket sendto;

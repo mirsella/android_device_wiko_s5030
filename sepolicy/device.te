@@ -1,0 +1,17 @@
+# Device nodes that are accessed by non-init domains on s5030.
+# Keep these types separate from the generic `device` type: domain.te
+# neverallows `{ domain -init -ueventd } device:chr_file { open read write }`.
+
+type mtk_disp_mgr_device, dev_type;
+type wmt_wifi_device, dev_type;
+type mtk_bt_device, dev_type;
+type nvram_block_device, dev_type;
+type mtk_smi_device, dev_type;
+type devmap_device, dev_type;
+type sw_sync_device, dev_type;
+type mtk_wmt_device, dev_type;
+type mtk_wmtdetect_device, dev_type;
+type mtk_gps_device, dev_type;
+type mtk_adc_device, dev_type;
+type mtk_bt_addr_file, file_type;
+type mtk_thermal_settings_file, file_type;

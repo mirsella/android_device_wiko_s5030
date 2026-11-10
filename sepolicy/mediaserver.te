@@ -1,0 +1,10 @@
+# MTK camera HAL (mediaserver) needs the SMI/devmap devices and boot mode
+# to initialize the ISP pipeline. Without these the ISP base stays NULL and
+# libfeatureio crashes in ISP_MGR_AE_STAT_HIST_CONFIG::config().
+allow mediaserver mtk_smi_device:chr_file rw_file_perms;
+allow mediaserver devmap_device:chr_file rw_file_perms;
+allow mediaserver camera_device:chr_file rw_file_perms;
+allow mediaserver sysfs_mem_bw:file rw_file_perms;
+allow mediaserver sysfs_boot_mode:file r_file_perms;
+# libshim_camera's SensorManager needs the sensor service during EIS init.
+allow mediaserver sensorservice_service:service_manager find;

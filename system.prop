@@ -53,5 +53,21 @@ wifi.interface=wlan0
 wifi.tethering.interface=ap0
 
 # WCN
-persist.mtk.wcn.combo.chipid=-1
+persist.mtk.wcn.combo.chipid=0x6580
 service.wcn.driver.ready=no
+
+# ADB
+# Keep authentication on. Authorize the host key after first boot.
+ro.adb.secure=1
+persist.sys.usb.config=mtp,adb
+ro.setupwizard.mode=DISABLED
+
+# Low-RAM tuning for 1 GB (747 MB usable). Heap limits are in dalvik-heap.mk.
+ro.config.low_ram=true
+
+# Faster boot on slow eMMC
+
+# zram swap (kernel has CONFIG_ZRAM=y)
+ro.config.zram=true
+persist.audio.legacy_hal=1
+ro.mtk_bt_support=1

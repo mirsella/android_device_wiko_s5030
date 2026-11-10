@@ -1,0 +1,22 @@
+# MTK Mali/GPU sysfs nodes read by the vendor GL driver and by apps.
+# libMali's POSIX timer thread reads is_dpidle; without a label and an
+# explicit app-domain allow, fopen() returns NULL and getc() crashes the
+# process (seen in LatinIME and Open Camera).  dev_info is read by app
+# RenderThreads during GPU initialization.
+type sysfs_is_dpidle, fs_type, sysfs_type;
+type sysfs_dev_info, fs_type, sysfs_type;
+
+allow untrusted_app sysfs_is_dpidle:file r_file_perms;
+allow untrusted_app sysfs_dev_info:file r_file_perms;
+allow surfaceflinger sysfs_is_dpidle:file r_file_perms;
+allow surfaceflinger sysfs_dev_info:file r_file_perms;
+allow bootanim sysfs_dev_info:file r_file_perms;
+allow bootanim sysfs_is_dpidle:file r_file_perms;
+allow system_server sysfs_dev_info:file r_file_perms;
+allow system_server sysfs_is_dpidle:file r_file_perms;
+allow system_app sysfs_dev_info:file r_file_perms;
+allow system_app sysfs_is_dpidle:file r_file_perms;
+allow platform_app sysfs_dev_info:file r_file_perms;
+allow platform_app sysfs_is_dpidle:file r_file_perms;
+allow priv_app sysfs_dev_info:file r_file_perms;
+allow priv_app sysfs_is_dpidle:file r_file_perms;

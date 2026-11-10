@@ -1,0 +1,7 @@
+# mtk_wmtd (kernel thread) reads Wi-Fi calibration from
+# /nvdata/APCFG/APRDEB/WIFI.
+allow kernel nvdata_file:dir search;
+allow kernel nvdata_file:file r_file_perms;
+
+# mtk_wmtd needs DAC override to read the 0660/0600 nvdata files.
+allow kernel self:capability dac_override;

@@ -1,0 +1,142 @@
+diff --git a/media/java/android/media/CameraProfile.java b/media/java/android/media/CameraProfile.java
+index 905e2d2d..cfde6d06 100644
+--- a/media/java/android/media/CameraProfile.java
++++ b/media/java/android/media/CameraProfile.java
+@@ -18,6 +18,7 @@ package android.media;
+ 
+ import android.hardware.Camera;
+ import android.hardware.Camera.CameraInfo;
++import android.util.Log;
+ 
+ import java.util.Arrays;
+ import java.util.HashMap;
+@@ -30,6 +31,8 @@ import java.util.HashMap;
+  */
+ public class CameraProfile
+ {
++    private static final String TAG = "CameraProfile";
++
+     /**
+      * Define three quality levels for JPEG image encoding.
+      */
+@@ -96,7 +99,12 @@ public class CameraProfile
+     private static int[] getImageEncodingQualityLevels(int cameraId) {
+         int nLevels = native_get_num_image_encoding_quality_levels(cameraId);
+         if (nLevels != QUALITY_HIGH + 1) {
+-            throw new RuntimeException("Unexpected Jpeg encoding quality levels " + nLevels);
++            // Some MTK HAL1 cameras (notably the front sensor) do not expose
++            // KEY_JPEG_QUALITY, so the native helper returns zero levels.
++            // Use a sane low/medium/high ladder instead of crashing the app.
++            Log.w(TAG, "Camera " + cameraId + " reports " + nLevels
++                    + " JPEG quality levels; using defaults");
++            return new int[] { 70, 85, 95 };
+         }
+ 
+         int[] levels = new int[nLevels];
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/FlashlightController.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/FlashlightController.java
+index d307a4ce..bbebaa2d 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/FlashlightController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/FlashlightController.java
+@@ -66,7 +66,11 @@ public class FlashlightController {
+     /** Lock on {@code this} when accessing */
+     private boolean mFlashlightEnabled;
+ 
+-    private String mCameraId;
++    // The stock MTK HAL1 camera probe can block forever on the dead rear
++    // sensor, which wedges SystemUI during boot. CameraService drives the
++    // flashlight directly, so use the fixed primary camera id.
++    private static final String CAMERA_ID = "0";
++
+     private boolean mTorchAvailable;
+ 
+     private Notification mNotification = null;
+@@ -95,28 +99,18 @@ public class FlashlightController {
+     }
+ 
+     private void tryInitCamera() {
+-        try {
+-            mCameraId = getCameraId();
+-        } catch (Throwable e) {
+-            Log.e(TAG, "Couldn't initialize.", e);
+-            return;
+-        }
+-
+-        if (mCameraId != null) {
+-            ensureHandler();
+-            mCameraManager.registerTorchCallback(mTorchCallback, mHandler);
+-        }
++        ensureHandler();
++        mCameraManager.registerTorchCallback(mTorchCallback, mHandler);
+     }
+ 
+     public void setFlashlight(boolean enabled) {
+         boolean pendingError = false;
+         synchronized (this) {
+-            if (mCameraId == null) return;
+             if (mFlashlightEnabled != enabled) {
+                 mFlashlightEnabled = enabled;
+ 
+                 try {
+-                    mCameraManager.setTorchMode(mCameraId, enabled);
++                    mCameraManager.setTorchMode(CAMERA_ID, enabled);
+                 } catch (CameraAccessException e) {
+                     Log.e(TAG, "Couldn't set torch mode", e);
+                     mFlashlightEnabled = false;
+@@ -194,9 +188,6 @@ public class FlashlightController {
+ 
+     public void addListener(FlashlightListener l) {
+         synchronized (mListeners) {
+-            if (mCameraId == null) {
+-                tryInitCamera();
+-            }
+             cleanUpListenersLocked(l);
+             mListeners.add(new WeakReference<>(l));
+         }
+@@ -216,20 +207,6 @@ public class FlashlightController {
+         }
+     }
+ 
+-    private String getCameraId() throws CameraAccessException {
+-        String[] ids = mCameraManager.getCameraIdList();
+-        for (String id : ids) {
+-            CameraCharacteristics c = mCameraManager.getCameraCharacteristics(id);
+-            Boolean flashAvailable = c.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+-            Integer lensFacing = c.get(CameraCharacteristics.LENS_FACING);
+-            if (flashAvailable != null && flashAvailable
+-                    && lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
+-                return id;
+-            }
+-        }
+-        return null;
+-    }
+-
+     private void dispatchModeChanged(boolean enabled) {
+         dispatchListeners(DISPATCH_CHANGED, enabled);
+     }
+@@ -280,7 +257,7 @@ public class FlashlightController {
+ 
+         @Override
+         public void onTorchModeUnavailable(String cameraId) {
+-            if (TextUtils.equals(cameraId, mCameraId)) {
++            if (CAMERA_ID.equals(cameraId)) {
+                 setCameraAvailable(false);
+                 setListenForScreenOff(false);
+             }
+@@ -288,7 +265,7 @@ public class FlashlightController {
+ 
+         @Override
+         public void onTorchModeChanged(String cameraId, boolean enabled) {
+-            if (TextUtils.equals(cameraId, mCameraId)) {
++            if (CAMERA_ID.equals(cameraId)) {
+                 setCameraAvailable(true);
+                 setTorchMode(enabled);
+                 setListenForScreenOff(enabled);
+@@ -324,7 +301,7 @@ public class FlashlightController {
+         pw.println("FlashlightController state:");
+ 
+         pw.print("  mCameraId=");
+-        pw.println(mCameraId);
++        pw.println(CAMERA_ID);
+         pw.print("  mFlashlightEnabled=");
+         pw.println(mFlashlightEnabled);
+         pw.print("  mTorchAvailable=");
