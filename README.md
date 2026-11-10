@@ -1,17 +1,17 @@
-# Wiko Lenny 2 (s5030) — LineageOS 14.1
+# Wiko Lenny 2 (s5030) LineageOS 14.1 device tree
 
-Source-only device tree for the **Wiko Lenny 2** (`s5030`, MediaTek MT6580,
-1 GB RAM, 8 GB eMMC, 480x854). This tree is based on the
-[A2L5-UL device tree](https://github.com/A2L5-UL/android_device_wiko_s5030)
-and targets LineageOS 14.1 (Android 7.1.2).
+Device tree for the Wiko Lenny 2 (s5030), a MediaTek MT6580 phone with 1 GB
+RAM, 8 GB eMMC, and a 480x854 screen. It builds LineageOS 14.1 (Android
+7.1.2) and is based on
+[A2L5-UL's device tree](https://github.com/A2L5-UL/android_device_wiko_s5030).
 
-This repository contains source, configuration, SELinux policy, and the small
-framework patches needed to reproduce the build. It does **not** contain
-vendor binaries, a kernel checkout, prebuilt images, signing keys, or GApps.
+The repository contains the source, configuration, SELinux policy, and
+framework patches needed to build the ROM. It does not include vendor
+binaries, kernel source, prebuilt images, signing keys, or GApps.
 
 ## Status
 
-Working on the final `user` build:
+These features work in the final `user` build:
 
 - Wi-Fi, Bluetooth (adapter power and scanning), MTP + ADB
 - front-camera photos and preview
@@ -22,24 +22,30 @@ Working on the final `user` build:
   domain
 - WebView, `screenrecord`, and the normal LineageOS apps
 
-Known limitations:
+## Limitations
 
-- **Rear camera:** the sensor returns black frames. This is a fault in the
-  rear camera module/flex, not a software issue.
-- **Camera video:** Snap's record button is disabled. Configuring a video
-  stream crashes the 5.1 MTK camera HAL in `ParamsManager::updatePreviewSize`
-  on the 7.1 stagefright/gralloc stack. Photo capture and `screenrecord` work.
-- **Root:** release `user` builds contain no `su` and no `perfprofd`; `adb
-  root` is unavailable. A `userdebug` build is available for debugging.
-- **Flashing:** the block-image OTA updater fails with E1001 on this recovery.
-  Flash `boot` with fastboot and write the raw system image from CWM.
-- Boot takes about 19 seconds to the launcher on this hardware; MTK kernel
-  threads in `D` state keep the load average high even while the CPU is idle.
+The rear camera returns black frames. The sensor module or flex is faulty;
+software changes do not fix it.
+
+Snap's record button is disabled. Configuring a video stream crashes the 5.1
+MTK camera HAL in `ParamsManager::updatePreviewSize` when it runs on the 7.1
+stagefright/gralloc stack. Photo capture and `screenrecord` still work.
+
+Release `user` builds have no `su` and no `perfprofd`, so `adb root` does not
+work. Build `userdebug` if you need root or debugging tools.
+
+The block-image OTA updater fails with E1001 on this recovery. Flash `boot`
+with fastboot and write the raw system image from CWM.
+
+Boot takes about 19 seconds to the launcher. MTK kernel threads in `D` state
+keep the load average high even when the CPU is idle.
 
 ## Repository layout
 
+The repository root is the device tree.
+
 ```text
-device/wiko/s5030/          this device tree (repository root)
+device/wiko/s5030/
   patches/                  framework/Snap patches applied after repo sync
   manifests/                local manifest for repo
   scripts/                  patch and build helpers
@@ -52,8 +58,8 @@ device/wiko/s5030/          this device tree (repository root)
 
 ## Build
 
-Prerequisites: a Linux host, `repo`, Java 8, the usual LineageOS 14.1 build
-dependencies, and a stock Wiko Lenny 2 system image for the vendor blobs.
+You need Linux, `repo`, Java 8, the usual LineageOS 14.1 build dependencies,
+and a stock Wiko Lenny 2 system image for the vendor blobs.
 
 ```bash
 mkdir -p ~/android/lineage-14.1
@@ -81,19 +87,19 @@ lunch lineage_s5030-userdebug   # or lineage_s5030-user for a release build
 mka bacon
 ```
 
-If the host JDK trips over the old Jack TLS setup, export:
+If Jack fails on the host JDK's TLS settings, set:
 
 ```bash
 export JACK_EXTRA_CURL_OPTIONS=--tlsv1.0
 ```
 
-The `user` variant excludes `su`, `perfprofd`, and other debug-only packages.
-The `userdebug` variant is useful for `adb root` and debugging.
+The `user` variant leaves out `su`, `perfprofd`, and other debug-only
+packages. Use `userdebug` if you want `adb root` or debugging.
 
 ## Patches
 
-`scripts/apply-patches.sh` applies the three patches in `patches/` to a synced
-LineageOS 14.1 tree:
+`scripts/apply-patches.sh` applies the three patches in `patches/` after
+`repo sync`:
 
 | Project | Patch | Base commit |
 | --- | --- | --- |
@@ -101,23 +107,23 @@ LineageOS 14.1 tree:
 | `frameworks/base` | `frameworks_base.patch` | `3ea44fbb` |
 | `packages/apps/Snap` | `packages_apps_Snap.patch` | `d9563f3` |
 
-The kernel is the upstream
+The kernel comes from the
 [A2L5-UL kernel](https://github.com/A2L5-UL/android_kernel_wiko_s5030) at
-commit `3de7764af7b78ab1b6d7c12b2e2fe4d26531d971`; no kernel patch is required.
+commit `3de7764af7b78ab1b6d7c12b2e2fe4d26531d971`; no kernel patch is needed.
 
-The patches contain:
+The patches:
 
-- direct `/dev/kd_camera_flashlight` torch control and removal of the dead
-  legacy flash-control path in `CameraFlashlight`;
-- a null-preview-window guard for the legacy camera HAL;
-- the MTK 5.1 audio `get_capture_position` guard;
-- a front-camera profile fallback in `CameraProfile`;
-- a fixed camera ID in SystemUI's flashlight controller;
-- Snap video recording disabled with a Toast.
+- drive the torch directly through `/dev/kd_camera_flashlight` and remove the
+  old flash-control path from `CameraFlashlight`
+- guard against a null preview window in the legacy camera HAL
+- skip `get_capture_position` for the MTK 5.1 audio HAL
+- fall back to a working front-camera profile in `CameraProfile`
+- use a fixed camera ID in SystemUI's flashlight controller
+- disable Snap video recording and show a Toast
 
 ## Flashing
 
-Back up the stock boot and system partitions first. Do not relock the
+Back up the stock boot and system partitions first, and do not relock the
 bootloader.
 
 ```bash
@@ -134,9 +140,9 @@ dd if=/data/local/tmp/system.raw.img \
 sync
 ```
 
-The raw-system installer used during development is not included here because
-it embeds prebuilt images. The tree is intended to reproduce those images
-from source and a stock blob dump.
+The raw-system installer from development is not here because it contains
+prebuilt images. This tree is meant to rebuild those images from source and a
+stock blob dump.
 
 ## Credits
 
